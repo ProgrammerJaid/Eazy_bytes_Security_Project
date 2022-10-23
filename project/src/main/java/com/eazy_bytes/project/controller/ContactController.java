@@ -1,15 +1,32 @@
 package com.eazy_bytes.project.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
+import java.sql.Date;
+import java.util.Random;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.eazy_bytes.project.model.Contact;
+import com.eazy_bytes.project.repo.ContactRepository;
 
 @RestController
 public class ContactController {
 
-	@RequestMapping("/contacts")
-	public ResponseEntity<String> getMyAccount(){
-		return new ResponseEntity<String>("Not Secured.",HttpStatus.OK);
+	@Autowired
+	private ContactRepository contactRepo;
+	
+	@PostMapping("/contact")
+	public Contact saveContactInquiryDetails(@RequestBody Contact contact) {
+		contact.setContactId(getServiceReqNumber());
+		contact.setCreateDt(new Date(System.currentTimeMillis()));
+		return contactRepo.save(contact);
+	}
+
+	public String getServiceReqNumber() {
+	    Random random = new Random();
+	    int ranNum = random.nextInt(999999999 - 9999) + 9999;
+	    return "SR"+ranNum;
 	}
 }

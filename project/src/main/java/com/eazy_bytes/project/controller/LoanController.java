@@ -1,16 +1,28 @@
 package com.eazy_bytes.project.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.eazy_bytes.project.model.Customer;
+import com.eazy_bytes.project.model.Loans;
+import com.eazy_bytes.project.repo.LoanRepository;
 
 @RestController
 public class LoanController {
 
-	
-	@GetMapping("/myLoan")
-	public ResponseEntity<String> getMyAccountloan(){
-		return new ResponseEntity<String>("secured and will be soon",HttpStatus.OK);
+	@Autowired
+	private LoanRepository loanRepository;
+
+	@PostMapping("/myLoans")
+	public List<Loans> getLoanDetails(@RequestBody Customer customer) {
+		List<Loans> loans = loanRepository.findByCustomerIdOrderByStartDtDesc(customer.getId());
+		if (loans != null)
+			return loans;
+		else
+			return null;
 	}
 }

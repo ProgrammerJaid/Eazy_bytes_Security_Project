@@ -1,11 +1,18 @@
 package com.eazy_bytes.project.config;
 
+import java.util.Collections;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 public class ProjectSecurityConfig {
@@ -16,9 +23,22 @@ public class ProjectSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		http.csrf().disable().authorizeHttpRequests()
-		.antMatchers("/myAccount","/myLoans","/myCards","/myBalance").authenticated()
-		.antMatchers("/contacts","/register").permitAll()
+		http.cors().configurationSource(new CorsConfigurationSource() {
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+                config.setAllowedMethods(Collections.singletonList("*"));
+                config.setAllowCredentials(true);
+                config.setAllowedHeaders(Collections.singletonList("*"));
+                config.setMaxAge(3600L);
+                return config;
+            }
+        }).and().csrf().ignoringAntMatchers("/notices","/contact")
+		.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()). 
+		and().authorizeHttpRequests()
+		.antMatchers("/myAccount","/myLoans","/myCards","/myBalance","/user").authenticated()
+		.antMatchers("/contacts","/register","/notices","/user").permitAll()
 				.and().formLogin().and().httpBasic();
 
 //		http.csrf().disable()

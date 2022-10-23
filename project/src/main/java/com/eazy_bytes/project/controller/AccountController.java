@@ -1,16 +1,27 @@
 package com.eazy_bytes.project.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.eazy_bytes.project.model.Accounts;
+import com.eazy_bytes.project.model.Customer;
+import com.eazy_bytes.project.repo.AccountRepo;
 
 @RestController
 public class AccountController {
 
-	@GetMapping("/myAccount")
-	public ResponseEntity<String> getMyAccount(){
-		return new ResponseEntity<String>("secured and will be soon",HttpStatus.OK);
+	@Autowired
+	private AccountRepo accountsRepository;
+	
+	@PostMapping("/myAccount")
+	public Accounts getAccountDetails(@RequestBody Customer customer) {
+		Accounts accounts = accountsRepository.findByCustomerId(customer.getId());
+		if (accounts != null )
+			return accounts;
+		else
+			return null;
 	}
 	
 }
