@@ -36,10 +36,14 @@ public class ProjectSecurityConfig {
             }
         }).and().csrf().ignoringAntMatchers("/notices","/contact")
 		.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()). 
-		and().authorizeHttpRequests()
-		.antMatchers("/myAccount","/myLoans","/myCards","/myBalance","/user").authenticated()
-		.antMatchers("/contacts","/register","/notices","/user").permitAll()
-				.and().formLogin().and().httpBasic();
+			and().authorizeHttpRequests()
+                .antMatchers("/myAccount","/myCards").hasRole("USER")
+                .antMatchers("/myBalance").hasAnyRole("USER","ADMIN")
+                .antMatchers("/myLoans").hasRole("ROOT")
+                .antMatchers("/user").authenticated()
+                .antMatchers("/notices", "/contact").permitAll()
+				
+           .and().formLogin().and().httpBasic();
 
 //		http.csrf().disable()
 //		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()

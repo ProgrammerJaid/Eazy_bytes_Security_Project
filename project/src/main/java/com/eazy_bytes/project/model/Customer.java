@@ -1,36 +1,45 @@
 package com.eazy_bytes.project.model;
 
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 public class Customer {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO,generator = "native")
-	@GenericGenerator(name="native", strategy = "native")
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+	@GenericGenerator(name = "native", strategy = "native")
 	@Column(name = "customer_id")
 	private int id;
-	
+
 	private String name;
 	private String email;
-	
+
 	@Column(name = "mobile_number")
 	private String mobileNumber;
-	
-	@JsonIgnore
-	private String pwd;
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)	//this says i want pwd from user but 									
+	private String pwd;										//do not want to sent it back
 	private String role;
-	
+
 	@Column(name = "create_dt")
 	private String createDt;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
+	private Set<Authority> authorities;
 
 	public int getId() {
 		return id;
@@ -87,4 +96,13 @@ public class Customer {
 	public void setCreateDt(String createDt) {
 		this.createDt = createDt;
 	}
+
+	public Set<Authority> getAuthorities() {
+		return authorities;
+	}
+
+	public void setAuthorities(Set<Authority> authorities) {
+		this.authorities = authorities;
+	}
+
 }

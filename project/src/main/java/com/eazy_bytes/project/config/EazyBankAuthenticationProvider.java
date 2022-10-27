@@ -2,6 +2,7 @@ package com.eazy_bytes.project.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -14,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.eazy_bytes.project.model.Authority;
 import com.eazy_bytes.project.model.Customer;
 import com.eazy_bytes.project.repo.CustomerRepo;
 
@@ -29,18 +31,26 @@ public class EazyBankAuthenticationProvider implements AuthenticationProvider {
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-		String name = authentication.getName();
-		String password = authentication.getCredentials().toString();
-		List<Customer> collect = custRepo.findByEmail(name);
-		if (collect.size() == 0)
-			throw new BadCredentialsException(name + " does not exists.");
-
-		if (!passEncoder.matches(password, collect.get(0).getPwd()))
-			throw new BadCredentialsException("Invalid Password.");
-
-		List<GrantedAuthority> authorities = new ArrayList<>();
-		authorities.add(new SimpleGrantedAuthority(collect.get(0).getRole()));
-		return new UsernamePasswordAuthenticationToken(name, password, authorities);
+		String username = authentication.getName();
+		String pwd = authentication.getCredentials().toString();
+		List<Customer> customer = custRepo.findByEmail(username);
+		if (customer.size() > 0) {
+			if (passEncoder.matches(pwd, customer.get(0).getPwd()))
+				return new UsernamePasswordAuthenticationToken(username, pwd, 
+						getGrantedAuthorities(customer.get(0).getAuthorities()));
+			else
+				throw new BadCredentialsException("Invalid password!");
+			
+		}else
+			throw new BadCredentialsException("No user registered with this details!");
+	}
+	
+	private List<GrantedAuthority> getGrantedAuthorities(Set<Authority> authorities) {
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        for (Authority authority : authorities)
+        	grantedAuthorities.add(new SimpleGrantedAuthority(authority.getName()));
+        
+        return grantedAuthorities;
 	}
 
 	@Override
