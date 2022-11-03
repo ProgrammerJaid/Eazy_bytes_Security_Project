@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
+//@EnableWebSecurity(debug = true)
 public class TolkenApplication {
 
 	public static void main(String[] args) {
